@@ -1,0 +1,46 @@
+{
+  "name": "@msiviero/knit-di",
+  "version": "0.0.2",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "keywords": [
+    "nodejs",
+    "dependency injection",
+    "decorators",
+    "typescript"
+  ],
+  "description": "Simple typescript dependency injection container and decorators",
+  "scripts": {
+    "compile": "npm run-script clean && tsc -p ./tsconfig.build.json",
+    "test": "jest --detectOpenHandles",
+    "lint": "tslint -c ../tslint.json -p tsconfig.json",
+    "clean": "rimraf dist",
+    "prepare": "npm run-script lint && npm run-script compile"
+  },
+  "jest": {
+    "globals": {
+      "tsConfigFile": "tsconfig.json"
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts)$": "./node_modules/ts-jest/preprocessor.js"
+    },
+    "testMatch": [
+      "**/test/**/*.test.(ts)"
+    ],
+    "testEnvironment": "node"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.1.4",
+    "jest": "^23.3.0",
+    "ts-jest": "^23.0.0",
+    "tslint": "^5.10.0",
+    "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.12"
+  }
+}
