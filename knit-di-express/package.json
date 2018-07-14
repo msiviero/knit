@@ -1,6 +1,6 @@
 {
   "name": "@msiviero/knit-di-express",
-  "version": "0.1.3",
+  "version": "0.0.4",
   "main": "dist/index.js",
   "license": "MIT",
   "keywords": [
@@ -45,7 +45,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "@msiviero/knit-di": "0.1.*",
+    "@msiviero/knit-di": "~0.1",
     "express": "^4.16.3",
     "reflect-metadata": "^0.1.12"
   }
