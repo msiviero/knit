@@ -1,8 +1,12 @@
 {
   "name": "@msiviero/knit-di",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "dist/index.js",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msiviero/knit-di"
+  },
   "keywords": [
     "nodejs",
     "dependency injection",
