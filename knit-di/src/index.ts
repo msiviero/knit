@@ -1,3 +1,3 @@
 export { component, inject } from "./decorators";
 export { Container } from "./container";
-export { Scope } from "./types";
+export { Scope, Provider } from "./types";

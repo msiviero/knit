@@ -14,7 +14,7 @@ export class Container {
 
   private static readonly instance = new Container();
 
-  private readonly instances = new Map<Constructor<any>, any>();
+  private readonly instances = new Map<InjectionToken<any>, any>();
   private readonly dependencies = new Map<InjectionToken<any>, Provider<any>>();
 
   public resolve<T>(type: Constructor<T>): T {
@@ -25,27 +25,31 @@ export class Container {
     return provider();
   }
 
-  public provide<T>(type: InjectionToken<T>, provider: Provider<T>) {
+  public singletonProvider<T>(type: InjectionToken<T>, provider: Provider<T>) {
+    return () => {
+      if (!this.instances.has(type)) {
+        this.instances.set(type, provider());
+      }
+      return this.instances.get(type);
+    };
+  }
+
+  public provide<T>(type: InjectionToken<T>, provider: Provider<T>, scope: Scope = Scope.Singleton) {
     if (this.dependencies.has(type)) {
       throw new Error(`Type ${type} already has a registered provider`);
     }
-    this.dependencies.set(type, provider);
+    switch (scope) {
+      case Scope.Singleton:
+        this.dependencies.set(type, this.singletonProvider(type, provider));
+        break;
+      case Scope.Prototype:
+        this.dependencies.set(type, provider);
+        break;
+    }
   }
 
   public register<T>(type: Constructor<T>, scope: Scope) {
-    switch (scope) {
-      case Scope.Singleton:
-        this.provide(type, () => {
-          if (!this.instances.has(type)) {
-            this.instances.set(type, this.create(type));
-          }
-          return this.instances.get(type);
-        });
-        break;
-      case Scope.Prototype:
-        this.provide(type, () => this.create(type));
-        break;
-    }
+    this.provide(type, () => this.create(type), scope);
   }
 
   private create<T>(ctor: Constructor<T>) {
