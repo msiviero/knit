@@ -46,6 +46,7 @@ export class Container {
         this.dependencies.set(type, provider);
         break;
     }
+    return this;
   }
 
   public register<T>(type: Constructor<T>, scope: Scope) {
