@@ -9,6 +9,31 @@ import {
   get,
 } from "../src/index";
 
+test("Should inject routes with default api endpoint", async () => {
+  const app = express();
+  const apiContainer = ApiContainer.getInstance();
+
+  @api()
+  class ApiController {
+
+    @get("/hello")
+    public hello(exchange: Exchange) {
+      exchange.response.json({
+        message: "Hello World",
+      });
+    }
+  }
+
+  apiContainer.registerApi(app, ApiController);
+
+  const response = await request(app)
+    .get("/hello")
+    .set("Accept", "application/json")
+    .expect(200);
+
+  expect(response.body.message).toEqual("Hello World");
+});
+
 test("Should inject api dependencies", async () => {
 
   const app = express();

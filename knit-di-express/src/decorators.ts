@@ -4,7 +4,7 @@ import { Constructor, HttpMethod, RouteFn } from "./types";
 export const API_TOKEN = "http:api";
 export const ROUTE_TOKEN = "http:route";
 
-export function api<T>(path: string = "/") {
+export function api<T>(path: string = "") {
   return (ctor: Constructor<T>) => {
     Reflect.defineMetadata(API_TOKEN, { path }, ctor);
   };

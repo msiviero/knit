@@ -36,8 +36,8 @@ export class ApiContainer {
     const routeMeta: RouteMeta[] = Reflect.getMetadata(ROUTE_TOKEN, instance) || [];
 
     routeMeta.forEach((meta) => {
-      app[meta.method](`${apiMeta.path}${meta.path}`, (request, response) => {
-        const exchange: Exchange = { request, response };
+      app[meta.method](`${apiMeta.path}${meta.path}`, (request, response, next) => {
+        const exchange: Exchange = { request, response, next };
         meta.descriptor.value!.apply(instance, [exchange]);
       });
     });

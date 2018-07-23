@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export interface Constructor<T> { new(...args: any[]): T; }
 
@@ -7,6 +7,7 @@ export type RouteFn = (exchange: Exchange) => void;
 export interface Exchange {
   readonly request: Request;
   readonly response: Response;
+  readonly next: NextFunction;
 }
 
 export enum HttpMethod {
