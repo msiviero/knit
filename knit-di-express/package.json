@@ -49,7 +49,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "@msiviero/knit-di": "~0",
+    "@msiviero/knit-di": "~1",
     "express": "^4.16.3",
     "reflect-metadata": "^0.1.12"
   }
