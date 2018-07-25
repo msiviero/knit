@@ -135,17 +135,42 @@ test("Should inject named parameters correctly", () => {
 
 test("Should correctly wrap singleton providers", () => {
 
+  const container = Container.getInstance();
+
   const provider: Provider<number> = () => {
     return Math.random() * 10;
   };
 
-  const singletonProvider: Provider<number> = Container
-    .getInstance()
-    .singletonProvider("di:random", provider);
+  container.provide("test-di:provider", provider);
 
-  expect(provider()).not.toEqual(provider());
-  expect(provider()).not.toEqual(provider());
+  @component(Scope.Prototype)
+  class Test {
+    constructor(@inject("test-di:provider") public readonly test2: number) { }
+  }
 
-  expect(singletonProvider()).toEqual(singletonProvider());
-  expect(singletonProvider()).toEqual(singletonProvider());
+  const t1 = container.resolve(Test);
+  const t2 = container.resolve(Test);
+
+  expect(t1.test2).toBe(t2.test2);
+});
+
+test("Should correctly use prototype providers", () => {
+
+  const container = Container.getInstance();
+
+  const provider: Provider<number> = () => {
+    return Math.random() * 10;
+  };
+
+  container.provide("test-di:provider2", provider, Scope.Prototype);
+
+  @component(Scope.Prototype)
+  class Test {
+    constructor(@inject("test-di:provider2") public readonly test2: number) { }
+  }
+
+  const t1 = container.resolve(Test);
+  const t2 = container.resolve(Test);
+
+  expect(t1.test2).not.toBe(t2.test2);
 });

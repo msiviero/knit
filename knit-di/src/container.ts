@@ -25,15 +25,6 @@ export class Container {
     return provider();
   }
 
-  public singletonProvider<T>(type: InjectionToken<T>, provider: Provider<T>) {
-    return () => {
-      if (!this.instances.has(type)) {
-        this.instances.set(type, provider());
-      }
-      return this.instances.get(type);
-    };
-  }
-
   public provide<T>(type: InjectionToken<T>, provider: Provider<T>, scope: Scope = Scope.Singleton) {
     if (this.dependencies.has(type)) {
       throw new Error(`Type ${type} already has a registered provider`);
@@ -51,6 +42,15 @@ export class Container {
 
   public register<T>(type: Constructor<T>, scope: Scope) {
     this.provide(type, () => this.create(type), scope);
+  }
+
+  private singletonProvider<T>(type: InjectionToken<T>, provider: Provider<T>) {
+    return () => {
+      if (!this.instances.has(type)) {
+        this.instances.set(type, provider());
+      }
+      return this.instances.get(type);
+    };
   }
 
   private create<T>(ctor: Constructor<T>) {

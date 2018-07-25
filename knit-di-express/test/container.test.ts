@@ -8,7 +8,6 @@ import {
   Exchange,
   get,
 } from "../src/index";
-import { resolve } from "dns";
 
 test("Should inject routes with default api endpoint", async () => {
   const app = express();
