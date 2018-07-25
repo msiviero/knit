@@ -25,7 +25,7 @@ class Manager {
    * @returns the measures
    */
   public all() {
-    return [...this.entries];
+    return this.immutable(this.entries);
   }
 
   /**
@@ -34,7 +34,7 @@ class Manager {
    * @returns the measures
    */
   public byName(label: string) {
-    return [...this.entries.filter((entry) => entry.label === label)];
+    return this.immutable(this.entries.filter((entry) => entry.label === label));
   }
 
   /**
@@ -71,6 +71,10 @@ class Manager {
       this.entries = this.entries
         .filter((entry) => entry.label !== label);
     }
+  }
+
+  private immutable(entries: Entry[]) {
+    return Object.freeze([...entries]);
   }
 }
 
