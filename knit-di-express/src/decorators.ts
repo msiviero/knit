@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Constructor, HttpMethod, RouteFn } from "./types";
+import { Constructor, HttpMethod, RouteMethodDescriptor } from "./types";
 
 export const API_TOKEN = "http:api";
 export const ROUTE_TOKEN = "http:route";
@@ -11,7 +11,7 @@ export function api<T>(path: string = "") {
 }
 
 export function route(method: HttpMethod, path: string) {
-  return (target: object, key: string, descriptor: TypedPropertyDescriptor<RouteFn>) => Reflect
+  return (target: object, key: string, descriptor: RouteMethodDescriptor) => Reflect
     .defineMetadata(ROUTE_TOKEN, [
       ...(Reflect.getMetadata(ROUTE_TOKEN, target) || []), { method, path, key, descriptor },
     ], target);

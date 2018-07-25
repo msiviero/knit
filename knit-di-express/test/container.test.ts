@@ -8,6 +8,7 @@ import {
   Exchange,
   get,
 } from "../src/index";
+import { resolve } from "dns";
 
 test("Should inject routes with default api endpoint", async () => {
   const app = express();
@@ -112,4 +113,32 @@ test("Should inject api dependencies with custom provider", async () => {
     .expect(200);
 
   expect(response.body.message).toEqual("Custom Hello World");
+});
+
+test("Should inject async routest", async () => {
+  const app = express();
+  const apiContainer = ApiContainer.getInstance();
+
+  @api()
+  class ApiController {
+
+    @get("/hello")
+    public async hello(exchange: Exchange) {
+
+      const message = await new Promise((resolve) => {
+        setTimeout(() => resolve("Hello Async World"), 30);
+      });
+
+      exchange.response.json({ message });
+    }
+  }
+
+  apiContainer.registerApi(app, ApiController);
+
+  const response = await request(app)
+    .get("/hello")
+    .set("Accept", "application/json")
+    .expect(200);
+
+  expect(response.body.message).toEqual("Hello Async World");
 });
