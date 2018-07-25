@@ -1,3 +1,3 @@
-import * as measure from "./measure";
+import * as performance from "./performance";
 
-export { measure };
+export { performance };

@@ -81,7 +81,7 @@ export const manager = new Manager();
  * @param label The label
  * @param condition A condition which, if evaluate to false, skips the measure. Default to "true"
  */
-export function track(label: string, condition: boolean = true) {
+export function measure(label: string, condition: boolean = true) {
   return (target: object, _: string, descriptor: TypedPropertyDescriptor<any>) => {
 
     if (!condition) {

@@ -1,6 +1,6 @@
-import { measure } from "../src/index";
+import * as performance from "../src/performance";
 
-beforeEach(() => measure.manager.clear());
+beforeEach(() => performance.manager.clear());
 
 test("Should measure section performance", () => {
 
@@ -9,7 +9,7 @@ test("Should measure section performance", () => {
 
   class ClassUnderTest {
 
-    @measure.track(marker)
+    @performance.measure(marker)
     public longRunningMethod(char: string) {
       let acc = "";
 
@@ -27,11 +27,11 @@ test("Should measure section performance", () => {
   expect(underTest.longRunningMethod("y")).toBe("y".repeat(runs));
   expect(underTest.longRunningMethod("z")).toBe("z".repeat(runs));
 
-  const measures = measure.manager.byName(marker);
+  const measures = performance.manager.byName(marker);
   const sum = measures[0].elapsed + measures[1].elapsed + measures[2].elapsed;
 
   expect(measures).toHaveLength(3);
-  expect(measure.manager.sum(marker)).toBe(sum);
+  expect(performance.manager.sum(marker)).toBe(sum);
 });
 
 test("Should measure section performance in async", async () => {
@@ -40,7 +40,7 @@ test("Should measure section performance in async", async () => {
 
   class ClassUnderTest {
 
-    @measure.track(marker)
+    @performance.measure(marker)
     public longRunningMethod(): Promise<string> {
       return new Promise((resolve) => {
         setTimeout(() => resolve("x"), 150);
@@ -53,10 +53,10 @@ test("Should measure section performance in async", async () => {
 
   expect(result).toEqual("x");
 
-  const measures = measure.manager.byName(marker);
+  const measures = performance.manager.byName(marker);
 
   expect(measures).toHaveLength(1);
-  expect(measure.manager.sum(marker)).toBeGreaterThanOrEqual(150);
+  expect(performance.manager.sum(marker)).toBeGreaterThanOrEqual(150);
 });
 
 test("Should skip on condition", () => {
@@ -66,7 +66,7 @@ test("Should skip on condition", () => {
 
   class ClassUnderTest {
 
-    @measure.track(marker, false)
+    @performance.measure(marker, false)
     public longRunningMethod(char: string) {
       let acc = "";
 
@@ -81,5 +81,5 @@ test("Should skip on condition", () => {
   const underTest = new ClassUnderTest();
 
   expect(underTest.longRunningMethod("x")).toBe("x".repeat(runs));
-  expect(measure.manager.all()).toHaveLength(0);
+  expect(performance.manager.all()).toHaveLength(0);
 });
