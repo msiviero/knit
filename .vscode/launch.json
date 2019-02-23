@@ -1,0 +1,64 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug index",
+            "type": "node",
+            "request": "launch",
+            "sourceMaps": true,
+            "cwd": "${workspaceRoot}",
+            "protocol": "inspector",
+            "args": [
+                "${workspaceRoot}/src/index.ts",
+            ],
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register",
+            ],
+            "env": {
+                "TS_NODE_FILES": "true",
+                "TS_NODE_PROJECT": "./tsconfig.json",
+                "NODE_ENV": "dev",
+                "GOOGLE_APPLICATION_CREDENTIALS": "/Users/howard.scordio/Desktop/gcloud/c.json",
+                "JWT_KEY": "abc2983da56248cd9acc37fd65cce288",
+                "JWT_SECRET": "822e2d398d5543be98c9a6f0ef9ae97b",
+                "COUNTRY": "de",
+                "OUTPUT_DATASET": "sbt_zero_result",
+                "OUTPUT_TABLE": "output_howard_test",
+                "SAMPLE_SIZE": "100",
+                "MAX_SERP_REQUESTS_PER_SECONDS": "10",
+            },
+        },
+        {
+            "name": "Debug ts-node",
+            "type": "node",
+            "request": "launch",
+            "sourceMaps": true,
+            "cwd": "${workspaceRoot}",
+            "protocol": "inspector",
+            "args": [
+                "${workspaceRoot}/${relativeFile}",
+            ],
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register",
+            ],
+        },
+        {
+            "name": "Debug current test",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/.bin/jest",
+            "args": [
+                "${relativeFile}"
+            ],
+            "cwd": "${workspaceRoot}",
+            "protocol": "inspector"
+        }
+    ]
+}
