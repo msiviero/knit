@@ -1,4 +1,4 @@
-import { Container, inject, injectable, provider, Scope } from "../src/container";
+import { Container, inject, injectable, provider, Scope } from "../src/dependency-injection";
 
 class AClass { public readonly name = "aclass"; }
 
@@ -31,24 +31,6 @@ export class CProvider {
     ) { }
 
     public provide = () => this.aClass.name + "_c_" + this.b;
-}
-
-@injectable()
-class DClass {
-    constructor(
-        @inject("token:b") public readonly b: string,
-        public readonly aClass: AClass,
-    ) { }
-}
-
-@injectable()
-class RandClass {
-    public readonly id = Math.random().toString(36).substring(10);
-}
-
-@injectable(Scope.Prototype)
-class RandProtoClass {
-    public readonly id = Math.random().toString(36).substring(10);
 }
 
 describe("Providers", () => {
@@ -91,12 +73,27 @@ describe("Providers", () => {
 describe("Decorated classes", () => {
 
     it("should have their dependencies injected", () => {
+
+        @injectable()
+        class DClass {
+            constructor(
+                @inject("token:b") public readonly b: string,
+                public readonly aClass: AClass,
+            ) { }
+        }
+
         const instance = Container.getInstance().resolve(DClass);
         expect(instance.aClass.name).toEqual("aclass");
         expect(instance.b).toEqual("b");
     });
 
     it("should reuse the same instance when marked as singleton", () => {
+
+        @injectable()
+        class RandClass {
+            public readonly id = Math.random().toString(36).substring(10);
+        }
+
         const instance = Container.getInstance().resolve(RandClass);
         const instance2 = Container.getInstance().resolve(RandClass);
         const instance3 = Container.getInstance().resolve(RandClass);
@@ -106,6 +103,12 @@ describe("Decorated classes", () => {
     });
 
     it("should not reuse the same instance when marked as prototype", () => {
+
+        @injectable(Scope.Prototype)
+        class RandProtoClass {
+            public readonly id = Math.random().toString(36).substring(10);
+        }
+
         const instance = Container.getInstance().resolve(RandProtoClass);
         const instance2 = Container.getInstance().resolve(RandProtoClass);
         const instance3 = Container.getInstance().resolve(RandProtoClass);
@@ -115,3 +118,4 @@ describe("Decorated classes", () => {
         expect(instance2.id).not.toEqual(instance3.id);
     });
 });
+
