@@ -23,7 +23,7 @@ export function configuration<T>() {
     };
 }
 
-export function configValue(key: string, scope: Scope = Scope.Prototype) {
+export function config(key: string, scope: Scope = Scope.Prototype) {
     const [configClass, property] = key.split(":");
     const configProvider = ConfigProviders.getInstance().get(configClass);
     if (!configProvider) {

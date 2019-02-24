@@ -1,4 +1,4 @@
-import { configuration, configValue } from "../src/configuration";
+import { config, configuration } from "../src/configuration";
 import { Container, injectable } from "../src/dependency-injection";
 
 @configuration()
@@ -22,12 +22,13 @@ describe("Configuration", () => {
         @injectable()
         class ConfigurableClass {
             constructor(
-                @configValue("AppConfig:myname") public readonly myname: string,
-                @configValue("AppConfig:fruit") public readonly fruit: string,
+                @config("AppConfig:myname") public readonly myname: string,
+                @config("AppConfig:fruit") public readonly fruit: string,
             ) { }
         }
 
         const instance = Container.getInstance().resolve(ConfigurableClass);
+
         expect(instance.myname).toEqual("deps_blabla");
         expect(instance.fruit).toEqual("banana");
     });
