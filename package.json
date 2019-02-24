@@ -15,11 +15,11 @@
   ],
   "description": "Simple typescript dependency injection container and decorators",
   "scripts": {
-    "compile": "npm run-script clean && tsc -p ./tsconfig.build.json",
+    "build": "npm run-script clean && tsc -p ./tsconfig.build.json",
     "test": "jest --detectOpenHandles",
     "lint": "tslint -c ./tslint.json -p tsconfig.json",
     "clean": "rimraf dist",
-    "prepare": "npm run-script lint && npm run-script compile"
+    "prepare": "npm run-script lint && npm run-script build"
   },
   "jest": {
     "globals": {
