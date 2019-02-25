@@ -17,9 +17,10 @@ export class AppConfig {
 
 describe("Configuration", () => {
 
-    it("should inject environment variables", () => {
+    beforeEach(() => process.env.BLA_BLA = "bla_bla");
+    afterEach(() => process.env.BLA_BLA = undefined);
 
-        process.env.BLA_BLA = "bla_bla";
+    it("should inject environment variables", () => {
 
         @injectable()
         class ConfigurableClass {
@@ -39,7 +40,5 @@ describe("Configuration", () => {
         expect(instance.envValue).toEqual("bla_bla");
         expect(instance.envValueWithDefault).toEqual("bla_bla2");
         expect(instance.envValueWithoutDefault).toEqual("");
-
-        process.env.BLA_BLA = undefined;
     });
 });
