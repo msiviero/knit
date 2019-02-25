@@ -2,8 +2,8 @@ import "reflect-metadata";
 
 type InjectionToken<T> = Constructor<T> | string;
 interface TokenRegistry<T> { readonly [key: string]: Constructor<T>; }
-interface Provider<T> { provide: (...args: any[]) => T; }
 
+export interface Provider<T> { provide: (...args: any[]) => T; }
 export enum Scope { Prototype, Singleton }
 export type Constructor<T> = new (...args: any[]) => T;
 
@@ -42,11 +42,10 @@ export class Container {
     private readonly dependencies = new Map<InjectionToken<any>, Constructor<Provider<any | PromiseLike<any>>>>();
     private readonly cache = new Map<InjectionToken<any>, any>();
 
-    private constructor() { }
-
     public register<T>(type: Constructor<T>, scope: Scope) {
         const provide = () => this.createInstance(type);
         this.registerProvider(type, class implements Provider<T> { public provide = provide; }, scope);
+        return this;
     }
 
     public registerProvider<T>(
@@ -60,6 +59,7 @@ export class Container {
         }
         Reflect.defineMetadata("__injection_singleton", scope === Scope.Singleton, providerCtor);
         this.dependencies.set(token, providerCtor);
+        return this;
     }
 
     public resolve<T>(token: InjectionToken<T>): T {
