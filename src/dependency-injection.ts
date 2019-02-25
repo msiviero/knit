@@ -42,6 +42,8 @@ export class Container {
     private readonly dependencies = new Map<InjectionToken<any>, Constructor<Provider<any | PromiseLike<any>>>>();
     private readonly cache = new Map<InjectionToken<any>, any>();
 
+    private constructor() { }
+
     public register<T>(type: Constructor<T>, scope: Scope) {
         const provide = () => this.createInstance(type);
         this.registerProvider(type, class implements Provider<T> { public provide = provide; }, scope);

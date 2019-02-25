@@ -1,4 +1,4 @@
-import { config, configuration } from "../src/configuration";
+import { config, configuration, env } from "../src/configuration";
 import { Container, injectable } from "../src/dependency-injection";
 
 @configuration()
@@ -19,11 +19,16 @@ describe("Configuration", () => {
 
     it("should inject environment variables", () => {
 
+        process.env.BLA_BLA = "bla_bla";
+
         @injectable()
         class ConfigurableClass {
             constructor(
                 @config("AppConfig:myname") public readonly myname: string,
                 @config("AppConfig:fruit") public readonly fruit: string,
+                @env("BLA_BLA") public readonly envValue: string,
+                @env("NON_EXISTENT_BLA_BLA", "bla_bla2") public readonly envValueWithDefault: string,
+                @env("NON_EXISTENT_BLA_BLA2") public readonly envValueWithoutDefault: string,
             ) { }
         }
 
@@ -31,5 +36,10 @@ describe("Configuration", () => {
 
         expect(instance.myname).toEqual("deps_blabla");
         expect(instance.fruit).toEqual("banana");
+        expect(instance.envValue).toEqual("bla_bla");
+        expect(instance.envValueWithDefault).toEqual("bla_bla2");
+        expect(instance.envValueWithoutDefault).toEqual("");
+
+        process.env.BLA_BLA = undefined;
     });
 });
