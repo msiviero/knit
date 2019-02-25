@@ -32,7 +32,7 @@ describe("Http server instance", () => {
         .getInstance()
         .api(ApiClass);
 
-    beforeAll(() => httpServer.start());
+    beforeAll(() => httpServer.start(0));
     afterAll(() => httpServer.stop());
 
     it("should register endpoint and serve requests", async () => {
@@ -57,7 +57,7 @@ describe("Http server custom instance", () => {
     const httpServer = new HttpServer(container)
         .api(ApiClass);
 
-    beforeAll(() => httpServer.start());
+    beforeAll(() => httpServer.start(0));
     afterAll(() => httpServer.stop());
 
     it("should register endpoint and serve requests", async () => {

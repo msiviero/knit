@@ -83,10 +83,10 @@ export class HttpServer {
         return this;
     }
 
-    public async start() {
+    public async start(port: number | string) {
         try {
             await this.app.listen(3000);
-            this.app.log.info(`Server started [port=${this.app.server.address().port}]`);
+            this.app.log.info(`Server started [port=${port}]`);
         } catch (err) {
             this.app.log.error(err);
             process.exit(1);
