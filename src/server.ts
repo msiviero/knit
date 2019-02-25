@@ -3,6 +3,7 @@ import { DefaultHeaders, DefaultParams, DefaultQuery, FastifyReply, FastifyReque
 import { IncomingMessage, ServerResponse } from "http";
 import "reflect-metadata";
 import { Constructor, Container, Scope } from "./dependency-injection";
+import { AddressInfo } from "net";
 
 const API_TOKEN = "__api_token";
 const ROUTE_TOKEN = "__api_token";
@@ -86,7 +87,8 @@ export class HttpServer {
     public async start(port: number) {
         try {
             await this.app.listen(port);
-            this.app.log.info(`Server started [port=${port}]`);
+            const addressInfo = this.app.server.address() as AddressInfo;
+            this.app.log.info(`Server started [port=${addressInfo.port}]`);
         } catch (err) {
             this.app.log.error(err);
             process.exit(1);
