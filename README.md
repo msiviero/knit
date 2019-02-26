@@ -74,7 +74,7 @@ interface EmailService {
   sendEmail: (recipient: string) => void;
 }
 
-@provider<EmailService>(EmailService, Scope.Prototype)
+@provider<EmailService>("inject:EmailService", Scope.Prototype)
 export class EmailServiceProvider {
     public provide = () => ({
       sendEmail: (recipient: string) => {
@@ -85,9 +85,39 @@ export class EmailServiceProvider {
 
 @injectable()
 class MyApplication {
-  constructor(@inject("EmailService") public readonly emailService: EmailService) { }
+  constructor(@inject("inject:EmailService") public readonly emailService: EmailService) { }
 }
 ```
+
+## Configuration
+
+```typescript
+@configuration()
+export class DepConfig {
+    public myname = "deps";
+}
+
+@configuration()
+export class AppConfig {
+
+    public myname = this.dep.myname + "_blabla";
+
+    constructor(private readonly dep: DepConfig) { }
+    public fruit = () => "banana";
+}
+
+@injectable()
+class ConfigurableClass {
+    constructor(
+        @config("AppConfig:myname") public readonly myname: string,
+        @config("AppConfig:fruit") public readonly fruit: string,
+        @env("BLA_BLA") public readonly envValue: string,
+        @env("NON_EXISTENT_BLA_BLA", "bla_bla2") public readonly envValueWithDefault: string,
+        @env("NON_EXISTENT_BLA_BLA2") public readonly envValueWithoutDefault: string,
+    ) { }
+}
+```
+
 
 ## Http server
 
