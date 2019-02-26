@@ -1,9 +1,9 @@
 import * as fastify from "fastify";
 import { DefaultHeaders, DefaultParams, DefaultQuery, FastifyReply, FastifyRequest } from "fastify";
 import { IncomingMessage, ServerResponse } from "http";
+import { AddressInfo } from "net";
 import "reflect-metadata";
 import { Constructor, Container, Scope } from "./dependency-injection";
-import { AddressInfo } from "net";
 
 const API_TOKEN = "__api_token";
 const ROUTE_TOKEN = "__api_token";
