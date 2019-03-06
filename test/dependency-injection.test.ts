@@ -118,4 +118,3 @@ describe("Decorated classes", () => {
         expect(instance2.id).not.toEqual(instance3.id);
     });
 });
-

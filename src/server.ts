@@ -1,18 +1,28 @@
 import * as fastify from "fastify";
-import { DefaultHeaders, DefaultParams, DefaultQuery, FastifyReply, FastifyRequest } from "fastify";
-import { IncomingMessage, ServerResponse } from "http";
+import { DefaultHeaders, DefaultParams, DefaultQuery, FastifyReply, FastifyRequest, ServerOptions } from "fastify";
+import { IncomingMessage, Server, ServerResponse } from "http";
 import { AddressInfo } from "net";
 import "reflect-metadata";
 import { Constructor, Container, Scope } from "./dependency-injection";
-
 const API_TOKEN = "__api_token";
 const ROUTE_TOKEN = "__api_token";
 
 type HttpRequest = FastifyRequest<IncomingMessage, DefaultQuery, DefaultParams, DefaultHeaders, any>;
 type HttpResponse = FastifyReply<ServerResponse>;
 
+interface ServerOpts extends ServerOptions {
+    readonly port: number;
+    readonly address: string;
+}
+
 interface ApiMeta {
     readonly path: string;
+}
+
+interface RouteBinding {
+    readonly apiMeta: ApiMeta;
+    readonly routesMeta: RouteMeta[];
+    readonly instance: any;
 }
 
 interface RouteMeta {
@@ -61,32 +71,45 @@ export class HttpServer {
     public static getInstance = () => HttpServer.instance;
     private static readonly instance = new HttpServer(Container.getInstance());
 
-    public readonly app = fastify({
-        logger: {
-            prettyPrint: !(process.env.NODE_ENV === "production"),
-        },
-        trustProxy: true,
-    });
+    private bindings: RouteBinding[] = [];
+    private app?: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse>;
 
     public constructor(private readonly container: Container) { }
 
     public api<T>(ctor: Constructor<T>) {
         const instance = this.container.resolve(ctor);
         const apiMeta: ApiMeta = Reflect.getMetadata(API_TOKEN, ctor);
-        const routeMeta: RouteMeta[] = Reflect.getMetadata(ROUTE_TOKEN, instance) || [];
+        const routesMeta: RouteMeta[] = Reflect.getMetadata(ROUTE_TOKEN, instance) || [];
 
-        routeMeta.forEach((meta) => {
-            this.app[meta.method](`${apiMeta.path}${meta.path}`, (request, response) => {
-                const exchange: Exchange = { request, response };
-                meta.descriptor.value!.apply(instance, [exchange]);
-            });
-        });
+        this.bindings.push({ apiMeta, routesMeta, instance });
         return this;
     }
 
-    public async start(port: number) {
+    public getApp() {
+        return this.app;
+    }
+
+    public getServer() {
+        return this.app ? this.app.server : undefined;
+    }
+
+    public async start(serverOptions?: ServerOpts) {
+
+        this.app = fastify(serverOptions);
+        this.bindings.forEach(({ routesMeta, apiMeta, instance }) => {
+            routesMeta.forEach((meta) => {
+                this.app![meta.method](`${apiMeta.path}${meta.path}`, (request, response) => {
+                    const exchange: Exchange = { request, response };
+                    meta.descriptor.value!.apply(instance, [exchange]);
+                });
+            });
+        });
+
+        const port = serverOptions ? serverOptions.port : 0;
+        const address = serverOptions ? serverOptions.address : "0.0.0.0";
+
         try {
-            await this.app.listen(port);
+            await this.app.listen(port, address);
             const addressInfo = this.app.server.address() as AddressInfo;
             this.app.log.info(`Server started [port=${addressInfo.port}]`);
         } catch (err) {
@@ -96,15 +119,17 @@ export class HttpServer {
     }
 
     public async stop() {
+
+        if (!this.app) {
+            throw new Error("App is not running");
+        }
+
         return new Promise((resolve) => {
-            this.app.close(() => {
-                this.app.log.info("Server stopped");
+            this.app!.close(() => {
+                this.app!.log.info("Server stopped");
                 resolve();
             });
         });
     }
 
-    public server() {
-        return this.app.server;
-    }
 }

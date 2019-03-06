@@ -32,12 +32,12 @@ describe("Http server instance", () => {
         .getInstance()
         .api(ApiClass);
 
-    beforeAll(() => httpServer.start(0));
+    beforeAll(() => httpServer.start());
     afterAll(() => httpServer.stop());
 
     it("should register endpoint and serve requests", async () => {
 
-        const response = await supertest(httpServer.app.server)
+        const response = await supertest(httpServer.getServer())
             .get("/hello")
             .expect(200)
             .expect("Content-Type", "application/json; charset=utf-8");
@@ -57,12 +57,12 @@ describe("Http server custom instance", () => {
     const httpServer = new HttpServer(container)
         .api(ApiClass);
 
-    beforeAll(() => httpServer.start(0));
+    beforeAll(() => httpServer.start());
     afterAll(() => httpServer.stop());
 
     it("should register endpoint and serve requests", async () => {
 
-        const response = await supertest(httpServer.app.server)
+        const response = await supertest(httpServer.getServer())
             .get("/hello")
             .expect(200)
             .expect("Content-Type", "application/json; charset=utf-8");
