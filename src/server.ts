@@ -11,8 +11,8 @@ type HttpRequest = FastifyRequest<IncomingMessage, DefaultQuery, DefaultParams, 
 type HttpResponse = FastifyReply<ServerResponse>;
 
 interface ServerOpts extends ServerOptions {
-    readonly port: number;
-    readonly address: string;
+    readonly port?: number;
+    readonly address?: string;
 }
 
 interface ApiMeta {
@@ -105,8 +105,8 @@ export class HttpServer {
             });
         });
 
-        const port = serverOptions ? serverOptions.port : 0;
-        const address = serverOptions ? serverOptions.address : "0.0.0.0";
+        const port = serverOptions && serverOptions.port ? serverOptions.port : 0;
+        const address = serverOptions && serverOptions.address ? serverOptions.address : "0.0.0.0";
 
         try {
             await this.app.listen(port, address);
