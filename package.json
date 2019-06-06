@@ -39,21 +39,21 @@
     "testEnvironment": "node"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.11",
-    "@types/node": "^11.11.3",
-    "@types/pino": "^5.8.5",
+    "@types/jest": "^24.0.13",
+    "@types/node": "^12.0.5",
+    "@types/pino": "^5.8.8",
     "@types/supertest": "^2.0.7",
-    "jest": "^24.5.0",
+    "jest": "^24.8.0",
     "rimraf": "^2.6.3",
-    "ts-jest": "^24.0.0",
-    "ts-node": "^8.0.3",
-    "tslint": "^5.14.0",
-    "typescript": "^3.3.3333"
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.2.0",
+    "tslint": "^5.17.0",
+    "typescript": "^3.5.1"
   },
   "dependencies": {
-    "fastify": "^2.1.0",
-    "pino": "^5.11.1",
-    "pino-pretty": "^2.5.0",
+    "fastify": "^2.4.1",
+    "pino": "^5.12.6",
+    "pino-pretty": "^3.1.0",
     "reflect-metadata": "^0.1.13",
     "supertest": "^4.0.2"
   }
