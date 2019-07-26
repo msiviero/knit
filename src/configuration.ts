@@ -28,7 +28,7 @@ export function configuration<T>() {
 
 export function env(key: string, defaultValue?: string) {
     const provider = class { public provide = () => process.env[key] || (defaultValue || ""); };
-    Container.getInstance().registerProvider(`env:${key}`, provider, Scope.Prototype);
+    Container.getInstance().registerTokenProvider(`env:${key}`, provider, Scope.Prototype);
 
     return (target: any, _: string | symbol, parameterIndex: number) => {
         const namedTokens = Reflect.getOwnMetadata("__injection_token", target) || {};
@@ -47,7 +47,7 @@ export function config(key: string, scope: Scope = Scope.Prototype) {
     const provider = class {
         public provide = () => typeof configProperty === "function" ? configProperty() : configProperty;
     };
-    Container.getInstance().registerProvider(`${configClass}:${property}`, provider, scope);
+    Container.getInstance().registerTokenProvider(`${configClass}:${property}`, provider, scope);
 
     return (target: any, _: string | symbol, parameterIndex: number) => {
         const namedTokens = Reflect.getOwnMetadata("__injection_token", target) || {};

@@ -9,7 +9,7 @@ export type Constructor<T> = new (...args: any[]) => T;
 
 export function provider<T>(type: InjectionToken<T>, scope: Scope = Scope.Singleton) {
     return (target: Constructor<Provider<T | PromiseLike<T>>>) => {
-        Container.getInstance().registerProvider<T>(type, target, scope);
+        Container.getInstance().registerTokenProvider<T>(type, target, scope);
     };
 }
 
@@ -44,14 +44,14 @@ export class Container {
 
     public register<T>(type: Constructor<T>, scope: Scope) {
         const provide = () => this.createInstance(type);
-        this.registerProvider(type, class implements Provider<T> { public provide = provide; }, scope);
+        this.registerTokenProvider(type, class implements Provider<T> { public provide = provide; }, scope);
         return this;
     }
 
-    public registerProvider<T>(
+    public registerTokenProvider<T>(
         token: InjectionToken<T>,
         providerCtor: Constructor<Provider<T | PromiseLike<T>>>,
-        scope: Scope,
+        scope: Scope = Scope.Singleton,
     ) {
         if (this.dependencies.has(token)) {
             const tokenName = typeof token === "string" ? token : token.name;
@@ -62,11 +62,34 @@ export class Container {
         return this;
     }
 
+    public registerProvider<T>(
+        providerCtor: Constructor<Provider<T | PromiseLike<T>>>,
+        scope: Scope = Scope.Singleton,
+    ) {
+
+        const ctorName = providerCtor.name;
+
+        if (!ctorName) {
+            throw new Error("Empty ctor name. Are you trying to register an inline providr class without a token?");
+        }
+
+        const token = `_gen:${ctorName}`;
+
+        if (this.dependencies.has(token)) {
+            throw new Error(`Token already registered [token=${token}]`);
+        }
+
+        Reflect.defineMetadata("__injection_singleton", scope === Scope.Singleton, providerCtor);
+        this.dependencies.set(token, providerCtor);
+        return this;
+    }
+
     public resolve<T>(token: InjectionToken<T>): T {
         const providerCtor = this.dependencies.get(token);
         if (!providerCtor) {
             const tokenName = typeof token === "string" ? token : token.name;
-            throw new Error(`Error resolving token [token=${tokenName}]`);
+            const registeredTokens = JSON.stringify({ ...this.dependencies }, undefined, 2);
+            throw new Error(`Error resolving token [token=${tokenName} registeredTokens=${registeredTokens}]`);
         }
         const isSingleton = Reflect.getOwnMetadata("__injection_singleton", providerCtor) || false;
         if (!isSingleton) {

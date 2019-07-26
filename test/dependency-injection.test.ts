@@ -1,4 +1,5 @@
-import { Container, inject, injectable, provider, Scope } from "../src/dependency-injection";
+import { Container, inject, injectable, provider, Provider, Scope } from "../src/dependency-injection";
+import { ExampleProvider, User } from "./resources/example-provider";
 
 class AClass { public readonly name = "aclass"; }
 
@@ -43,6 +44,36 @@ describe("Providers", () => {
     it("should be able to provide iterface implementations", () => {
         const instance = Container.getInstance().resolve<string>("token:b");
         expect(instance).toEqual("b");
+    });
+
+    it("should be able to use external imported providers", () => {
+        const instance = Container
+            .getInstance()
+            .registerProvider(ExampleProvider)
+            .resolve<User>(User);
+
+        expect(instance).toEqual({ name: "name" });
+    });
+
+    it("should be able use inline providers", () => {
+
+        class U1 { constructor(public readonly name: string) { } }
+        class U2 { constructor(public readonly name2: string) { } }
+
+        const container = Container
+            .getInstance()
+            .registerTokenProvider("inject:u1", class implements Provider<U1> {
+                public provide = () => new U1("u1");
+            })
+            .registerTokenProvider("inject:u2", class implements Provider<U2> {
+                public provide = () => new U2("u2");
+            });
+
+        const u1 = container.resolve("inject:u1");
+        const u2 = container.resolve("inject:u2");
+
+        expect(u1).toEqual({ name: "u1" });
+        expect(u2).toEqual({ name2: "u2" });
     });
 
     it("should have their dependencies injected", () => {

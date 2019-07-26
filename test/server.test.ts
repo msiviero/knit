@@ -50,7 +50,7 @@ describe("Http server custom instance", () => {
 
     const container = new Container()
         .register(ApiClass, Scope.Singleton)
-        .registerProvider("service:test", class implements Provider<TestService> {
+        .registerTokenProvider("service:test", class implements Provider<TestService> {
             public provide = () => new TestService("world2");
         }, Scope.Singleton);
 

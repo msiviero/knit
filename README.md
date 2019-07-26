@@ -60,9 +60,31 @@ export class EmailServiceProvider {
     public provide = () => new EmailService();
 }
 
+Container.getInstance().registerProvider(EmailServiceProvider);
+
 @injectable()
 class MyApplication {
   constructor(public readonly emailService: EmailService) { }
+}
+```
+
+## Inline declare a provider
+
+```typescript
+
+Container
+  .getInstance()
+  .registerProvider("inject:email-service", class implements Provider<EmailService> {
+    public provide = () => ({
+      sendEmail: (recipient: string) => {
+        // omitted
+      }
+    });
+  });
+
+@injectable()
+class MyApplication {
+  constructor(@inject("inject:EmailService") public readonly emailService: EmailService) { }
 }
 ```
 
@@ -82,6 +104,8 @@ export class EmailServiceProvider {
       }
     });
 }
+
+Container.getInstance().registerProvider(EmailServiceProvider);
 
 @injectable()
 class MyApplication {
