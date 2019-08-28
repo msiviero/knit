@@ -3,7 +3,7 @@ import { DefaultHeaders, DefaultParams, DefaultQuery, FastifyReply, FastifyReque
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { AddressInfo } from "net";
 import "reflect-metadata";
-import { Constructor, Container, Scope } from "./dependency-injection";
+import { Constructor, Container, Provider, Scope } from "./dependency-injection";
 const API_TOKEN = "__api_token";
 const ROUTE_TOKEN = "__api_token";
 
@@ -82,6 +82,14 @@ export class HttpServer {
         const routesMeta: RouteMeta[] = Reflect.getMetadata(ROUTE_TOKEN, instance) || [];
 
         this.bindings.push({ apiMeta, routesMeta, instance });
+        return this;
+    }
+
+    public registerProvider<T>(
+        providerCtor: Constructor<Provider<T | PromiseLike<T>>>,
+        scope: Scope = Scope.Singleton,
+    ) {
+        this.container.registerProvider(providerCtor, scope);
         return this;
     }
 
