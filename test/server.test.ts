@@ -34,6 +34,11 @@ class ApiClass {
     public async getEndpointWithAsyncReturn(_: Exchange) {
         return { hello: this.testService.who };
     }
+
+    @route(HttpMethod.GET, "/it-throws-error")
+    public async getEndpointWithError(_: Exchange) {
+        throw new Error("Fake test error");
+    }
 }
 
 describe("Http server instance", () => {
@@ -73,6 +78,20 @@ describe("Http server instance", () => {
             .expect("Content-Type", "application/json; charset=utf-8");
 
         expect(response.text).toEqual(JSON.stringify({ hello: "world" }));
+    });
+
+    it("should handle exceptions", async () => {
+
+        const response = await supertest(httpServer.getServer())
+            .get("/it-throws-error")
+            .expect(500)
+            .expect("Content-Type", "application/json; charset=utf-8");
+
+        expect(response.text).toEqual(JSON.stringify({
+            statusCode: 500,
+            error: "Internal Server Error",
+            message: "Fake test error",
+        }));
     });
 });
 

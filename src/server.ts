@@ -59,7 +59,7 @@ export function api<T>(path: string = "") {
     };
 }
 
-export function route(method: HttpMethod, path: string) {
+export function route(method: HttpMethod, path: string = "") {
     return (target: object, key: string, descriptor: RouteMethodDescriptor) => Reflect
         .defineMetadata(ROUTE_TOKEN, [
             ...(Reflect.getMetadata(ROUTE_TOKEN, target) || []), { method, path, key, descriptor },
