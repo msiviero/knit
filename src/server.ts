@@ -32,8 +32,8 @@ interface RouteMeta {
     readonly descriptor: TypedPropertyDescriptor<RouteFn>;
 }
 
-export type RouteFn = (exchange: Exchange) => void;
-export type AsyncRouteFn = (exchange: Exchange) => Promise<void>;
+export type RouteFn = (exchange: Exchange) => any | void;
+export type AsyncRouteFn = (exchange: Exchange) => Promise<any | void>;
 
 export type RouteMethodDescriptor = TypedPropertyDescriptor<RouteFn> | TypedPropertyDescriptor<AsyncRouteFn>;
 
@@ -106,9 +106,16 @@ export class HttpServer {
         this.app = fastify(serverOptions);
         this.bindings.forEach(({ routesMeta, apiMeta, instance }) => {
             routesMeta.forEach((meta) => {
-                this.app![meta.method](`${apiMeta.path}${meta.path}`, (request, response) => {
+                this.app![meta.method](`${apiMeta.path}${meta.path}`, async (request, response) => {
                     const exchange: Exchange = { request, response };
-                    meta.descriptor.value!.apply(instance, [exchange]);
+                    try {
+                        const result = meta.descriptor.value!.apply(instance, [exchange]);
+                        if (result) {
+                            response.send(await result);
+                        }
+                    } catch (error) {
+                        response.code(500).send(error);
+                    }
                 });
             });
         });
