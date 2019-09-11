@@ -1,6 +1,6 @@
 import * as supertest from "supertest";
 import { Container, inject, Provider, provider, Scope } from "../src/dependency-injection";
-import { api, Exchange, HttpMethod, HttpServer, route } from "../src/server";
+import { api, Exchange, HttpError, HttpMethod, HttpServer, route } from "../src/server";
 
 class TestService {
     constructor(public readonly who: string = "world") { }
@@ -38,6 +38,11 @@ class ApiClass {
     @route(HttpMethod.GET, "/it-throws-error")
     public async getEndpointWithError(_: Exchange) {
         throw new Error("Fake test error");
+    }
+
+    @route(HttpMethod.GET, "/it-throws-custom-error")
+    public async getEndpointWithCustomError(_: Exchange) {
+        throw new HttpError(404, "No result found");
     }
 }
 
@@ -80,7 +85,7 @@ describe("Http server instance", () => {
         expect(response.text).toEqual(JSON.stringify({ hello: "world" }));
     });
 
-    it("should handle exceptions", async () => {
+    it("should handle generic exceptions", async () => {
 
         const response = await supertest(httpServer.getServer())
             .get("/it-throws-error")
@@ -89,8 +94,20 @@ describe("Http server instance", () => {
 
         expect(response.text).toEqual(JSON.stringify({
             statusCode: 500,
-            error: "Internal Server Error",
-            message: "Fake test error",
+            error: "Fake test error",
+        }));
+    });
+
+    it("should handle custom exceptions", async () => {
+
+        const response = await supertest(httpServer.getServer())
+            .get("/it-throws-custom-error")
+            .expect(404)
+            .expect("Content-Type", "application/json; charset=utf-8");
+
+        expect(response.text).toEqual(JSON.stringify({
+            statusCode: 404,
+            error: "No result found",
         }));
     });
 });

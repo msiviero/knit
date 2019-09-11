@@ -4,6 +4,7 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 import { AddressInfo } from "net";
 import "reflect-metadata";
 import { Constructor, Container, Provider, Scope } from "./dependency-injection";
+
 const API_TOKEN = "__api_token";
 const ROUTE_TOKEN = "__api_token";
 
@@ -32,6 +33,8 @@ interface RouteMeta {
     readonly descriptor: TypedPropertyDescriptor<RouteFn>;
 }
 
+const isHttpError = (arg: any): arg is HttpError => arg instanceof Error && arg.hasOwnProperty("code");
+
 export type RouteFn = (exchange: Exchange) => any | void;
 export type AsyncRouteFn = (exchange: Exchange) => Promise<any | void>;
 
@@ -42,6 +45,11 @@ export interface Exchange {
     readonly response: HttpResponse;
 }
 
+export interface HttpErrorResponse {
+    readonly statusCode: number;
+    readonly error: string;
+}
+
 export enum HttpMethod {
     OPTIONS = "options",
     HEAD = "head",
@@ -50,6 +58,12 @@ export enum HttpMethod {
     PUT = "put",
     PATCH = "patch",
     DELETE = "delete",
+}
+
+export class HttpError extends Error {
+    constructor(public readonly code: number, message: string) {
+        super(message);
+    }
 }
 
 export function api<T>(path: string = "") {
@@ -104,17 +118,22 @@ export class HttpServer {
     public async start(serverOptions?: ServerOpts) {
 
         this.app = fastify(serverOptions);
+        this.app.setErrorHandler((error, _, response) => {
+            const statusCode = isHttpError(error) ? error.code : 500;
+            const responseBody: HttpErrorResponse = {
+                statusCode,
+                error: error.message,
+            };
+            response.code(statusCode).send(responseBody);
+        });
+
         this.bindings.forEach(({ routesMeta, apiMeta, instance }) => {
             routesMeta.forEach((meta) => {
                 this.app![meta.method](`${apiMeta.path}${meta.path}`, async (request, response) => {
                     const exchange: Exchange = { request, response };
-                    try {
-                        const result = meta.descriptor.value!.apply(instance, [exchange]);
-                        if (result) {
-                            response.send(await result);
-                        }
-                    } catch (error) {
-                        response.code(500).send(error);
+                    const result = await meta.descriptor.value!.apply(instance, [exchange]);
+                    if (result) {
+                        response.send(result);
                     }
                 });
             });
@@ -146,5 +165,4 @@ export class HttpServer {
             });
         });
     }
-
 }
