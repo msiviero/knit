@@ -131,10 +131,7 @@ export class HttpServer {
             routesMeta.forEach((meta) => {
                 this.app![meta.method](`${apiMeta.path}${meta.path}`, async (request, response) => {
                     const exchange: Exchange = { request, response };
-                    const result = await meta.descriptor.value!.apply(instance, [exchange]);
-                    if (result) {
-                        response.send(result);
-                    }
+                    await meta.descriptor.value!.apply(instance, [exchange]);
                 });
             });
         });

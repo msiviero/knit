@@ -25,16 +25,6 @@ class ApiClass {
         exchange.response.send({ hello: this.testService.who });
     }
 
-    @route(HttpMethod.GET, "/it-returns")
-    public getEndpointWithReturn(_: Exchange) {
-        return { hello: this.testService.who };
-    }
-
-    @route(HttpMethod.GET, "/it-returns-async")
-    public async getEndpointWithAsyncReturn(_: Exchange) {
-        return { hello: this.testService.who };
-    }
-
     @route(HttpMethod.GET, "/it-throws-error")
     public async getEndpointWithError(_: Exchange) {
         throw new Error("Fake test error");
@@ -59,26 +49,6 @@ describe("Http server instance", () => {
 
         const response = await supertest(httpServer.getServer())
             .get("/hello")
-            .expect(200)
-            .expect("Content-Type", "application/json; charset=utf-8");
-
-        expect(response.text).toEqual(JSON.stringify({ hello: "world" }));
-    });
-
-    it("should handle returns", async () => {
-
-        const response = await supertest(httpServer.getServer())
-            .get("/it-returns")
-            .expect(200)
-            .expect("Content-Type", "application/json; charset=utf-8");
-
-        expect(response.text).toEqual(JSON.stringify({ hello: "world" }));
-    });
-
-    it("should handle async returns", async () => {
-
-        const response = await supertest(httpServer.getServer())
-            .get("/it-returns-async")
             .expect(200)
             .expect("Content-Type", "application/json; charset=utf-8");
 
