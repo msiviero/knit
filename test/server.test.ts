@@ -34,6 +34,11 @@ class ApiClass {
     public async getEndpointWithCustomError(_: Exchange) {
         throw new HttpError(404, "No result found");
     }
+
+    @route(HttpMethod.GET, "/it-throws-validation-error")
+    public async getEndpointValidated(_: Exchange) {
+        return _.response.send("you should actually not see this");
+    }
 }
 
 describe("Http server instance", () => {
@@ -78,6 +83,19 @@ describe("Http server instance", () => {
         expect(response.text).toEqual(JSON.stringify({
             statusCode: 404,
             error: "No result found",
+        }));
+    });
+
+    it("should throw validation error", async () => {
+
+        const response = await supertest(httpServer.getServer())
+            .get("/it-throws-validation-error?mandatory=true")
+            .expect(400)
+            .expect("Content-Type", "application/json; charset=utf-8");
+
+        expect(response.text).toEqual(JSON.stringify({
+            statusCode: 400,
+            error: "Validation error",
         }));
     });
 });

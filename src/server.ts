@@ -1,5 +1,5 @@
 import * as fastify from "fastify";
-import { DefaultHeaders, DefaultParams, DefaultQuery, FastifyReply, FastifyRequest, ServerOptions } from "fastify";
+import { DefaultHeaders, DefaultParams, DefaultQuery, FastifyReply, FastifyRequest, RouteSchema, ServerOptions } from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { AddressInfo } from "net";
 import "reflect-metadata";
@@ -73,10 +73,10 @@ export function api<T>(path: string = "") {
     };
 }
 
-export function route(method: HttpMethod, path: string = "") {
+export function route(method: HttpMethod, path: string = "", schema?: RouteSchema) {
     return (target: object, key: string, descriptor: RouteMethodDescriptor) => Reflect
         .defineMetadata(ROUTE_TOKEN, [
-            ...(Reflect.getMetadata(ROUTE_TOKEN, target) || []), { method, path, key, descriptor },
+            ...(Reflect.getMetadata(ROUTE_TOKEN, target) || []), { method, path, key, descriptor, schema },
         ], target);
 }
 
@@ -129,7 +129,7 @@ export class HttpServer {
 
         this.bindings.forEach(({ routesMeta, apiMeta, instance }) => {
             routesMeta.forEach((meta) => {
-                this.app![meta.method](`${apiMeta.path}${meta.path}`, async (request, response) => {
+                this.app![meta.method](`${apiMeta.path}${meta.path}`, {}, async (request, response) => {
                     const exchange: Exchange = { request, response };
                     await meta.descriptor.value!.apply(instance, [exchange]);
                 });
