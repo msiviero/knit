@@ -174,6 +174,25 @@ HttpServer
     .start(0);
 ```
 
+## Validate input via json schema
+
+```typescript
+@route(HttpMethod.GET, "/it-throws-validation-error", {
+        querystring: {
+            type: "object",
+            required: [
+                "mandatory",
+            ],
+            properties: {
+                mandatory: { type: "number" },
+            },
+        },
+    })
+    public async getEndpointValidated(exchange: Exchange) {
+        return exchange.response.send({ status: "ok" });
+    }
+```
+
 ## Http endpoint testing
 
 ```typescript

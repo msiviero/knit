@@ -46,8 +46,8 @@ class ApiClass {
             },
         },
     })
-    public async getEndpointValidated(_: Exchange) {
-        return _.response.send({ status: "ok" });
+    public async getEndpointValidated(exchange: Exchange) {
+        return exchange.response.send({ status: "ok" });
     }
 }
 
