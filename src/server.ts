@@ -31,6 +31,7 @@ interface RouteMeta {
     readonly path: string;
     readonly key: string;
     readonly descriptor: TypedPropertyDescriptor<RouteFn>;
+    readonly schema: RouteSchema;
 }
 
 const isHttpError = (arg: any): arg is HttpError => arg instanceof Error && arg.hasOwnProperty("code");
@@ -129,7 +130,9 @@ export class HttpServer {
 
         this.bindings.forEach(({ routesMeta, apiMeta, instance }) => {
             routesMeta.forEach((meta) => {
-                this.app![meta.method](`${apiMeta.path}${meta.path}`, {}, async (request, response) => {
+                const opts = { schema: meta.schema };
+                const fullPath = `${apiMeta.path}${meta.path}`;
+                this.app![meta.method](fullPath, opts, async (request, response) => {
                     const exchange: Exchange = { request, response };
                     await meta.descriptor.value!.apply(instance, [exchange]);
                 });

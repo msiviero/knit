@@ -35,7 +35,17 @@ class ApiClass {
         throw new HttpError(404, "No result found");
     }
 
-    @route(HttpMethod.GET, "/it-throws-validation-error")
+    @route(HttpMethod.GET, "/it-throws-validation-error", {
+        querystring: {
+            type: "object",
+            required: [
+                "mandatory",
+            ],
+            properties: {
+                mandatory: { type: "number" },
+            },
+        },
+    })
     public async getEndpointValidated(_: Exchange) {
         return _.response.send("you should actually not see this");
     }
@@ -97,6 +107,13 @@ describe("Http server instance", () => {
             statusCode: 400,
             error: "Validation error",
         }));
+    });
+
+    it("should not throw validation error", async () => {
+        await supertest(httpServer.getServer())
+            .get("/it-throws-validation-error?mandatory=123")
+            .expect(200)
+            .expect("Content-Type", "application/json; charset=utf-8");
     });
 });
 
