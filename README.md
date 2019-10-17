@@ -177,7 +177,7 @@ HttpServer
 ## Validate input via json schema
 
 ```typescript
-@route(HttpMethod.GET, "/it-throws-validation-error", {
+@route(HttpMethod.GET, "/myroute", {
         querystring: {
             type: "object",
             required: [
@@ -187,11 +187,21 @@ HttpServer
                 mandatory: { type: "number" },
             },
         },
+        response: {
+          200: {
+              type: "object",
+              properties: {
+                  hello: { type: "string" },
+              },
+          },
+        },
     })
     public async getEndpointValidated(exchange: Exchange) {
         return exchange.response.send({ status: "ok" });
     }
 ```
+
+All registered routes with json schema will be made available at runtime to the endpoint ```GET /system/endpoints``` and can be used with AJV, for example, to use it in other applications
 
 ## Http endpoint testing
 

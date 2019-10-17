@@ -6,6 +6,29 @@ class TestService {
     constructor(public readonly who: string = "world") { }
 }
 
+const qsSchema = {
+    querystring: {
+        type: "object",
+        required: [
+            "mandatory",
+        ],
+        properties: {
+            mandatory: { type: "number" },
+        },
+    },
+};
+
+const responseSchema = {
+    response: {
+        200: {
+            type: "object",
+            properties: {
+                hello: { type: "string" },
+            },
+        },
+    },
+};
+
 @provider<TestService>("service:test")
 export class TestServiceProvider {
     public provide() {
@@ -20,8 +43,13 @@ class ApiClass {
         @inject("service:test") private readonly testService: TestService,
     ) { }
 
-    @route(HttpMethod.GET, "/hello")
+    @route(HttpMethod.GET, "/hello", responseSchema)
     public async getEndpoint(exchange: Exchange) {
+        exchange.response.send({ hello: this.testService.who });
+    }
+
+    @route(HttpMethod.POST, "/hello", responseSchema)
+    public async postEndpoint(exchange: Exchange) {
         exchange.response.send({ hello: this.testService.who });
     }
 
@@ -35,17 +63,7 @@ class ApiClass {
         throw new HttpError(404, "No result found");
     }
 
-    @route(HttpMethod.GET, "/it-throws-validation-error", {
-        querystring: {
-            type: "object",
-            required: [
-                "mandatory",
-            ],
-            properties: {
-                mandatory: { type: "number" },
-            },
-        },
-    })
+    @route(HttpMethod.GET, "/it-throws-validation-error", qsSchema)
     public async getEndpointValidated(exchange: Exchange) {
         return exchange.response.send({ status: "ok" });
     }
@@ -114,6 +132,21 @@ describe("Http server instance", () => {
             .get("/it-throws-validation-error?mandatory=123")
             .expect(200)
             .expect("Content-Type", "application/json; charset=utf-8");
+
+        const response = await supertest(httpServer.getServer())
+            .get("/system/endpoints")
+            .expect(200)
+            .expect("Content-Type", "application/json; charset=utf-8");
+
+        expect(response.body).toEqual({
+            "/hello": {
+                GET: responseSchema,
+                POST: responseSchema,
+            },
+            "/it-throws-validation-error": {
+                GET: qsSchema,
+            },
+        });
     });
 });
 

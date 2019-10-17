@@ -139,18 +139,38 @@ export class HttpServer {
             response.code(statusCode).send(responseBody);
         });
 
+        interface RouteDocs {
+            [path: string]: {
+                [mathod in HttpMethod]: RouteSchema
+            };
+        }
+
+        const app = this.app!;
+        const documentedRoutes: RouteDocs = {};
+
         this.bindings.forEach(({ routesMeta, apiMeta, instance }) => {
             routesMeta.forEach((meta) => {
-                const opts = { schema: meta.schema, attachValidation: true };
-                const fullPath = `${apiMeta.path}${meta.path}`;
-                this.app![meta.method](fullPath, opts, async (request, response) => {
-                    const exchange: Exchange = { request, response };
+                const { method, schema, descriptor } = meta;
+                const opts = { schema, attachValidation: true };
+                const path = `${apiMeta.path}${meta.path}`;
+                app[method](path, opts, async (request, reply) => {
+                    const exchange: Exchange = { request, response: reply };
                     if (exchange.request.validationError) {
                         throw new HttpError(400, exchange.request.validationError);
-                    } else {
-                        await meta.descriptor.value!.apply(instance, [exchange]);
                     }
+                    await descriptor.value!.apply(instance, [exchange]);
                 });
+
+                if (schema) {
+                    documentedRoutes[path] = {
+                        ...documentedRoutes[path],
+                        [method.toUpperCase()]: schema,
+                    };
+                }
+            });
+
+            app.get("/system/endpoints", (_, reply) => {
+                reply.send(documentedRoutes);
             });
         });
 
