@@ -47,7 +47,7 @@ class ApiClass {
         },
     })
     public async getEndpointValidated(_: Exchange) {
-        return _.response.send("you should actually not see this");
+        return _.response.send({ status: "ok" });
     }
 }
 
@@ -99,13 +99,13 @@ describe("Http server instance", () => {
     it("should throw validation error", async () => {
 
         const response = await supertest(httpServer.getServer())
-            .get("/it-throws-validation-error?mandatory=true")
+            .get("/it-throws-validation-error?mandatory=pippo")
             .expect(400)
             .expect("Content-Type", "application/json; charset=utf-8");
 
         expect(response.text).toEqual(JSON.stringify({
             statusCode: 400,
-            error: "Validation error",
+            error: "Error: querystring.mandatory should be number",
         }));
     });
 
