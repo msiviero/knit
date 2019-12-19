@@ -138,6 +138,8 @@ class ConfigurableClass {
         @env("BLA_BLA") public readonly envValue: string,
         @env("NON_EXISTENT_BLA_BLA", "bla_bla2") public readonly envValueWithDefault: string,
         @env("NON_EXISTENT_BLA_BLA2") public readonly envValueWithoutDefault: string,
+        @env("A_NUMBER", 0, converters.number) public readonly envNumberValue: number,
+        @env("A_LIST", undefined, converters.list) public readonly envListalue: string[],
     ) { }
 }
 ```
