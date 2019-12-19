@@ -37,7 +37,7 @@ describe("Configuration", () => {
                 @env("NON_EXISTENT_BLA_BLA", "bla_bla2") public readonly envValueWithDefault: string,
                 @env("NON_EXISTENT_BLA_BLA2") public readonly envValueWithoutDefault: string,
                 @env("A_NUMBER", 10, converters.number) public readonly aNumber: number,
-                @env("A_LIST", undefined, converters.number) public readonly aList: string[],
+                @env("A_LIST", undefined, converters.list) public readonly aList: string[],
             ) { }
         }
 
