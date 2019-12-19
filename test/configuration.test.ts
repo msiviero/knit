@@ -1,4 +1,4 @@
-import { config, configuration, env } from "../src/configuration";
+import { config, configuration, converters, env } from "../src/configuration";
 import { Container, injectable } from "../src/dependency-injection";
 
 @configuration()
@@ -17,8 +17,14 @@ export class AppConfig {
 
 describe("Configuration", () => {
 
-    beforeEach(() => process.env.BLA_BLA = "bla_bla");
-    afterEach(() => process.env.BLA_BLA = undefined);
+    beforeEach(() => {
+        process.env.BLA_BLA = "bla_bla";
+        process.env.A_LIST = "a,b,c";
+    });
+    afterEach(() => {
+        process.env.BLA_BLA = undefined;
+        process.env.A_LIST = undefined;
+    });
 
     it("should inject environment variables", () => {
 
@@ -30,6 +36,8 @@ describe("Configuration", () => {
                 @env("BLA_BLA") public readonly envValue: string,
                 @env("NON_EXISTENT_BLA_BLA", "bla_bla2") public readonly envValueWithDefault: string,
                 @env("NON_EXISTENT_BLA_BLA2") public readonly envValueWithoutDefault: string,
+                @env("A_NUMBER", 10, converters.number) public readonly aNumber: number,
+                @env("A_LIST", undefined, converters.number) public readonly aList: string[],
             ) { }
         }
 
@@ -39,6 +47,8 @@ describe("Configuration", () => {
         expect(instance.fruit).toEqual("banana");
         expect(instance.envValue).toEqual("bla_bla");
         expect(instance.envValueWithDefault).toEqual("bla_bla2");
-        expect(instance.envValueWithoutDefault).toEqual("");
+        expect(instance.envValueWithoutDefault).toBeUndefined();
+        expect(instance.aNumber).toBe(10);
+        expect(instance.aList).toEqual(["a", "b", "c"]);
     });
 });
