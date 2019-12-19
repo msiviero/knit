@@ -1,12 +1,11 @@
 import "reflect-metadata";
 import { Constructor, Container, Scope } from "./dependency-injection";
 
-
 export type ConvertFunction = (value?: string) => unknown | undefined;
 
 export const converters = {
     string: (value?: string) => value,
-    number: (value?: string) => value ? parseInt(value) : undefined,
+    number: (value?: string) => value ? parseInt(value, 10) : undefined,
     list: (value?: string) => value ? value.split(",").map((chunk) => chunk.trim()) : undefined,
 } as const;
 
@@ -36,14 +35,14 @@ export function configuration<T>() {
 }
 
 const environmentProvider = (name: string, convertFunction: ConvertFunction, defaultValue?: any) => {
-    return class EnvironmentProvider { public provide = () => convertFunction(process.env[name]) || defaultValue };
-}
+    return class EnvironmentProvider { public provide = () => convertFunction(process.env[name]) || defaultValue; };
+};
 
-export function env(name: string, defaultValue?: unknown, transformFunction: ConvertFunction = converters.string) {
+export function env(name: string, defaultValue?: unknown, transformFn: ConvertFunction = converters.string) {
 
     Container
         .getInstance()
-        .registerTokenProvider(`env:${name}`, environmentProvider(name, transformFunction, defaultValue), Scope.Prototype);
+        .registerTokenProvider(`env:${name}`, environmentProvider(name, transformFn, defaultValue), Scope.Prototype);
 
     return (target: any, _: string | symbol, parameterIndex: number) => {
         const namedTokens = Reflect.getOwnMetadata("__injection_token", target) || {};
