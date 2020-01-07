@@ -57,6 +57,14 @@ export class Container {
             const tokenName = typeof token === "string" ? token : token.name;
             throw new Error(`Token already registered [token=${tokenName}]`);
         }
+        return this.unsafeRegisterTokenProvider(token, providerCtor, scope);
+    }
+
+    public unsafeRegisterTokenProvider<T>(
+        token: InjectionToken<T>,
+        providerCtor: Constructor<Provider<T | PromiseLike<T>>>,
+        scope: Scope = Scope.Singleton,
+    ) {
         Reflect.defineMetadata("__injection_singleton", scope === Scope.Singleton, providerCtor);
         this.dependencies.set(token, providerCtor);
         return this;

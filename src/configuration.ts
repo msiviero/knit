@@ -40,13 +40,17 @@ const environmentProvider = (name: string, convertFunction: ConvertFunction, def
 
 export function env(name: string, defaultValue?: unknown, transformFn: ConvertFunction = converters.string) {
 
-    Container
-        .getInstance()
-        .registerTokenProvider(`env:${name}`, environmentProvider(name, transformFn, defaultValue), Scope.Prototype);
+    const container = Container.getInstance();
+    const tokenName = `@env:${name}`;
+
+    container.unsafeRegisterTokenProvider(
+        tokenName,
+        environmentProvider(name, transformFn, defaultValue),
+        Scope.Prototype);
 
     return (target: any, _: string | symbol, parameterIndex: number) => {
         const namedTokens = Reflect.getOwnMetadata("__injection_token", target) || {};
-        namedTokens[parameterIndex] = `env:${name}`;
+        namedTokens[parameterIndex] = tokenName;
         Reflect.defineMetadata("__injection_token", namedTokens, target);
     };
 }

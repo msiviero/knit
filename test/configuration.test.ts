@@ -29,8 +29,16 @@ describe("Configuration", () => {
     it("should inject environment variables", () => {
 
         @injectable()
+        class SecondConfigurableClass {
+            constructor(
+                @env("A_NUMBER", 10, converters.number) public readonly aNumber: number,
+            ) { }
+        }
+
+        @injectable()
         class ConfigurableClass {
             constructor(
+                public readonly secondConfigurableClass: SecondConfigurableClass,
                 @config("AppConfig:myname") public readonly myname: string,
                 @config("AppConfig:fruit") public readonly fruit: string,
                 @env("BLA_BLA") public readonly envValue: string,
@@ -49,6 +57,7 @@ describe("Configuration", () => {
         expect(instance.envValueWithDefault).toEqual("bla_bla2");
         expect(instance.envValueWithoutDefault).toBeUndefined();
         expect(instance.aNumber).toBe(10);
+        expect(instance.secondConfigurableClass.aNumber).toBe(10);
         expect(instance.aList).toEqual(["a", "b", "c"]);
     });
 });
