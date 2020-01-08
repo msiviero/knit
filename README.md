@@ -74,7 +74,7 @@ class MyApplication {
 
 Container
   .getInstance()
-  .registerProvider("inject:email-service", class implements Provider<EmailService> {
+  .registerTokenProvider("inject:email-service", class implements Provider<EmailService> {
     public provide = () => ({
       sendEmail: (recipient: string) => {
         // omitted
@@ -173,7 +173,7 @@ class ApiClass {
 HttpServer
     .getInstance()
     .api(ApiClass)
-    .start(0);
+    .start();
 ```
 
 ## Validate input via json schema
@@ -210,7 +210,7 @@ describe("Http server custom instance", () => {
     const httpServer = new HttpServer(container)
         .api(ApiClass);
 
-    beforeAll(() => httpServer.start(0));
+    beforeAll(() => httpServer.start());
     afterAll(() => httpServer.stop());
 
     it("should register endpoint and serve requests", async () => {
